@@ -29,6 +29,7 @@ def handle_client(conn,addr):
             if msg==DISCONNECT_MESSAGE:
                 connected=False
             print(f"Usuario {addr} dice {msg}")
+            conn.send(f"(SERVER MESSAGE). Usted dijo {msg}".encode(FORMAT))
     conn.close()    
     
 def start():
