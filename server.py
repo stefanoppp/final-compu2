@@ -1,5 +1,6 @@
 import socket
 import threading
+import cv2
 def main():
     HEADER=64
     PORT=5050
@@ -12,10 +13,37 @@ def main():
     server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
     server.bind(ADDR)
+    # ----------------------entrenamos---------
+    from back_propagation import Back_Propagation
 
+    fotos=['P1-1.jpg',
+        'P1-2.jpg',
+        'P1-3.jpg',
+        'P2-1.jpg',
+        'P2-2.jpg',
+        'P2-3.jpg'
+        ]
+
+    salidas=[1,1,1,0,0,0]
+
+    pixeles_fotos=[]
+
+    for foto in fotos:
+        image = cv2.imread(foto)
+        auxiliar=[]
+        for alto in image:
+            for ancho in alto:
+                auxiliar.append(ancho[0])
+        auxiliar.append(1)
+        pixeles_fotos.append(auxiliar)
+
+    back=Back_Propagation(pixeles_fotos,salidas) 
+    neuronas=back.main()
+    # ------------------------------------------------------------
     def handle_client(conn,addr):
         connected=True
         print(f"Nuevo cliente conectado. Direccion {addr}")
+        # ---------------------------------------
         while connected:
             msg_length=conn.recv(HEADER).decode(FORMAT)
             if msg_length:
@@ -26,8 +54,10 @@ def main():
                     connected=False
                 # imprimo en la consola del server
                 print(f"Usuario {addr} dice {msg}")
+                
+                resultado=back.foto(neuronas,msg)
                 # imprimo en la consola del client
-                conn.send(f"(SERVER MESSAGE). Usted dijo {msg}".encode(FORMAT))
+                conn.send(f"(SERVER MESSAGE). Usted dijo {msg}. El resultado es: {resultado}".encode(FORMAT))
         conn.close()    
         
     def start():

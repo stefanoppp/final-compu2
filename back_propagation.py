@@ -82,10 +82,9 @@ class Back_Propagation():
         salidas.append(1)
         salida_final=nf[1].obtener_salida(salidas)
         if round(salida_final)==1:
-            print("Persona 1")
+            return "Persona 1"
         else:
-            print("Persona 2")
-        print("\n")
+            return "Persona 2"
 
 
 fotos=['P1-1.jpg',
@@ -108,9 +107,5 @@ for foto in fotos:
             auxiliar.append(ancho[0])
     auxiliar.append(1)
     pixeles_fotos.append(auxiliar)
-back_2=Back_Propagation(pixeles_fotos,salidas) 
-neuronas=back_2.main()
-   
-back_2.foto(neuronas,'P1-1.jpg')
 
-# problema, estamos iterando sobre objetos
+# back_2.foto(neuronas,'P1-1.jpg')
