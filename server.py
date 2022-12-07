@@ -1,6 +1,7 @@
 import socket
 import threading
 import cv2
+import uuid
 def main():
     HEADER=64
     PORT=5050
@@ -43,6 +44,9 @@ def main():
     def handle_client(conn,addr):
         connected=True
         print(f"Nuevo cliente conectado. Direccion {addr}")
+        id_con=uuid.uuid1().int
+        from querys import consulta
+        consulta(id_con)
         # ---------------------------------------
         while connected:
             msg_length=conn.recv(HEADER).decode(FORMAT)
