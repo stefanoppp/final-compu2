@@ -19,13 +19,11 @@ def main():
 
     fotos=['P1-1.jpg',
         'P1-2.jpg',
-        'P1-3.jpg',
         'P2-1.jpg',
         'P2-2.jpg',
-        'P2-3.jpg'
         ]
 
-    salidas=[1,1,1,0,0,0]
+    salidas=[1,1,0,0]
 
     pixeles_fotos=[]
 
