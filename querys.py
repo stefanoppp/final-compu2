@@ -1,5 +1,5 @@
 import sqlite3
-
+# ARREGLAR HORA
 def consulta(data):
     conexion = sqlite3.connect('connections.db')
     cursor = conexion.cursor()

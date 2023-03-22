@@ -10,7 +10,7 @@ client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 client.connect(ADDR)
 
 while CONNECTED:
-    msg=input("Mensaje a enviar: ")    
+    msg=input("Nombre de foto: ")    
     
     def send(msg):
         message=msg.encode(FORMAT)

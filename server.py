@@ -2,6 +2,7 @@ import socket
 import threading
 import cv2
 import uuid
+
 def main():
     HEADER=64
     PORT=5050
@@ -36,7 +37,8 @@ def main():
         auxiliar.append(1)
         pixeles_fotos.append(auxiliar)
 
-    back=Back_Propagation(pixeles_fotos,salidas) 
+    back=Back_Propagation(pixeles_fotos,salidas)
+    #  ----Paralelizar
     neuronas=back.main()
     # ------------------------------------------------------------
     def handle_client(conn,addr):
