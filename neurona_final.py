@@ -3,7 +3,7 @@ import numpy as np
 class Neurona_final:
     def __init__(self,pesos):
         self.pesos=pesos
-        self.lr=0.85
+        self.lr=0.5
     
     def obtener_salida(self,entradas):
         prod_escalar=np.dot(self.pesos,entradas)

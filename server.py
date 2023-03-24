@@ -5,7 +5,7 @@ import uuid
 
 def main():
     HEADER=64
-    PORT=5050
+    PORT=5051
     FORMAT='utf-8'
     DISCONNECT_MESSAGE="quit"
     SERVER=socket.gethostbyname(socket.gethostname())
@@ -38,8 +38,10 @@ def main():
         pixeles_fotos.append(auxiliar)
 
     back=Back_Propagation(pixeles_fotos,salidas)
-    #  ----Paralelizar
+
+
     neuronas=back.main()
+    
     # ------------------------------------------------------------
     def handle_client(conn,addr):
         connected=True
