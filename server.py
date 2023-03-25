@@ -2,14 +2,14 @@ import socket
 import threading
 import uuid
 import cv2
+
 def main():
     HEADER=64
-    PORT=5051
+    PORT=5050
     FORMAT='utf-8'
     DISCONNECT_MESSAGE="quit"
     SERVER=socket.gethostbyname(socket.gethostname())
     ADDR=(SERVER,PORT)
-
 
     server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
@@ -25,7 +25,7 @@ def main():
     salidas=[1,0,1,0]
 
     pixeles_fotos=[]
-
+    # Obtenemos los pixeles de las imagenes
     for foto in fotos:
         image = cv2.imread(foto)
         auxiliar=[]
@@ -70,6 +70,5 @@ def main():
             conn, addr=server.accept()
             thread=threading.Thread(target=handle_client,args=(conn,addr))
             thread.start()
-            
     start()
 main()

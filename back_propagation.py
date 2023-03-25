@@ -1,9 +1,9 @@
-
 from neurona_final import Neurona_final
 from neuronas_ocultas import Neurona_oculta
-import matplotlib.pyplot as plt
+import concurrent.futures
 import random
 import cv2
+
 class Back_Propagation():
     
     def __init__(self,entradas,salidas):
@@ -11,7 +11,7 @@ class Back_Propagation():
         self.salidas=salidas
     
     def main(self):
-        
+       
         cant_neuronas=int(input("Digite cantidad de neuronas: "))
         iteraciones=int(input("Digite cantidad de iteraciones: "))
         
@@ -33,37 +33,44 @@ class Back_Propagation():
         errores=[]
         salidas_red=[]
         # comienza la itereacion
-        for iteracion in range(iteraciones):
-            for i in range(len(self.entradas)):
-                salidas_ocultas=[]
-                for neurona in neuronas:
-                    salida_oculta=neurona.obtener_salida(self.entradas[i])
-                    salidas_ocultas.append(salida_oculta)
-                # agregamos bias final
-                salidas_ocultas.append(1)
-                # recalculamos pesos finales
-                salida_red=nf.obtener_salida(salidas_ocultas)
-                salidas_red.append(salida_red)
-                error_red=nf.obtener_error(self.salidas[i],salida_red)
-                errores.append(error_red)
-                delta_final=nf.obtener_delta_final(salida_red,error_red)
-                variaciones=[]
-                for salida in salidas_ocultas:
-                    variacion=nf.variacion_pesos(salida,delta_final)
-                    variaciones.append(variacion)
-                
-                nf.calcular_nuevos_pesos(variaciones)
-                # recalculamos pesos ocultos
-                variaciones=[]
-                for neurona in neuronas:
-                    salida=neurona.obtener_salida(self.entradas[i])
-                    delta_oculto=neurona.obtener_delta_oculto(salida,delta_final)
-                    for entrada in self.entradas[i]:
-                        variacion=neurona.variacion_pesos(entrada,delta_oculto)
+        def iterar():
+            for iteracion in range(iteraciones):
+                for i in range(len(self.entradas)):
+                    salidas_ocultas=[]
+                    for neurona in neuronas:
+                        salida_oculta=neurona.obtener_salida(self.entradas[i])
+                        salidas_ocultas.append(salida_oculta)
+                    # agregamos bias final
+                    salidas_ocultas.append(1)
+                    # recalculamos pesos finales
+                    salida_red=nf.obtener_salida(salidas_ocultas)
+                    salidas_red.append(salida_red)
+                    error_red=nf.obtener_error(self.salidas[i],salida_red)
+                    errores.append(error_red)
+                    delta_final=nf.obtener_delta_final(salida_red,error_red)
+                    variaciones=[]
+                    for salida in salidas_ocultas:
+                        variacion=nf.variacion_pesos(salida,delta_final)
                         variaciones.append(variacion)
-                    neurona.calcular_nuevos_pesos(variaciones)
-            print("Iteracion ",iteracion+1)
-            print(error_red)
+                    
+                    nf.calcular_nuevos_pesos(variaciones)
+                    # recalculamos pesos ocultos
+                    variaciones=[]
+                    for neurona in neuronas:
+                        salida=neurona.obtener_salida(self.entradas[i])
+                        delta_oculto=neurona.obtener_delta_oculto(salida,delta_final)
+                        for entrada in self.entradas[i]:
+                            variacion=neurona.variacion_pesos(entrada,delta_oculto)
+                            variaciones.append(variacion)
+                        neurona.calcular_nuevos_pesos(variaciones)
+                print("Iteracion ",iteracion+1)
+                print(error_red)
+        
+    # Paralelizamos con 4 hilos
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            
+            [executor.submit(iterar) for _ in range(1)]
+
         return [neuronas,nf]
     
     def foto(self,foto,neuronas,pixeles_fotos):
