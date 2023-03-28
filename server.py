@@ -2,12 +2,13 @@ import socket
 import threading
 import uuid
 import cv2
-
-def main():
+import argparse
+def main(args):
     HEADER=64
-    PORT=5050
-    FORMAT='utf-8'
-    DISCONNECT_MESSAGE="quit"
+    PORT=args.x
+    DISCONNECT_MESSAGE=args.y
+    FORMAT=args.z
+    
     SERVER=socket.gethostbyname(socket.gethostname())
     ADDR=(SERVER,PORT)
 
@@ -71,4 +72,9 @@ def main():
             thread=threading.Thread(target=handle_client,args=(conn,addr))
             thread.start()
     start()
-main()
+parser=argparse.ArgumentParser()
+parser.add_argument('--x',type=int,default=5050,help='Numero de puerto')
+parser.add_argument('--y',type=str,default='quit',help='Mensaje de desconexion')
+parser.add_argument('--z',type=str,default='utf-8',help='Formato de codificacion')
+args=parser.parse_args()
+main(args)

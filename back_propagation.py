@@ -11,10 +11,8 @@ class Back_Propagation():
         self.salidas=salidas
     
     def main(self):
-       
-        cant_neuronas=int(input("Digite cantidad de neuronas: "))
-        iteraciones=int(input("Digite cantidad de iteraciones: "))
-        
+        cant_neuronas=int(input("Cantidad de neuronas: "))
+        iteraciones=int(input("Iteraciones: "))
         neuronas=[]
         # instanciamos neuronas
         for i in range(cant_neuronas):
