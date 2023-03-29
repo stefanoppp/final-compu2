@@ -1,10 +1,8 @@
 import socket
 import argparse
-import threading
 def main(args):
     HEADER=64
     PORT=args.x
-    DISCONNECT_MESSAGE=args.y
     FORMAT=args.z
     
     SERVER=socket.gethostbyname(socket.gethostname())
@@ -28,7 +26,6 @@ def main(args):
         send(msg)
 parser=argparse.ArgumentParser()
 parser.add_argument('--x',type=int,default=5050,help='Numero de puerto')
-parser.add_argument('--y',type=str,default='quit',help='Mensaje de desconexion')
 parser.add_argument('--z',type=str,default='utf-8',help='Formato de codificacion')
 args=parser.parse_args()
 main(args)
