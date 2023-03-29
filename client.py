@@ -1,6 +1,6 @@
 import socket
 import argparse
-
+import threading
 def main(args):
     HEADER=64
     PORT=args.x
@@ -12,7 +12,7 @@ def main(args):
     CONNECTED=True
     client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     client.connect(ADDR)
-
+    
     while CONNECTED:
         msg=input("Nombre de foto: ")    
         
@@ -26,8 +26,6 @@ def main(args):
             server_msj=client.recv(2048).decode(FORMAT)
             print(server_msj)
         send(msg)
-        if msg==DISCONNECT_MESSAGE:
-            break
 parser=argparse.ArgumentParser()
 parser.add_argument('--x',type=int,default=5050,help='Numero de puerto')
 parser.add_argument('--y',type=str,default='quit',help='Mensaje de desconexion')

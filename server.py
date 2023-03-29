@@ -4,6 +4,7 @@ import uuid
 import cv2
 import argparse
 def main(args):
+    # instanciamos server y red neuronal
     HEADER=64
     PORT=args.x
     DISCONNECT_MESSAGE=args.y
@@ -39,21 +40,27 @@ def main(args):
     back=Back_Propagation(pixeles_fotos,salidas)
     neuronas=back.main()
 
+    semaphore=threading.BoundedSemaphore(2)
+
     def handle_client(conn,addr):
+        # Se crea el hilo y se queda esperando que los otros liberen el semaphore para recibir respuesta por parte del servidor
         connected=True
         print(f"Nuevo cliente conectado. Direccion {addr}")
         id_con=uuid.uuid1().int
         from querys import consulta
         consulta(id_con)
-        # ---------------------------------------
+        
         while connected:
             msg_length=conn.recv(HEADER).decode(FORMAT)
             if msg_length:
-                
                 msg_length=int(msg_length)
                 msg=conn.recv(msg_length).decode(FORMAT)
                 if msg==DISCONNECT_MESSAGE:
+                    semaphore.release()
+                    conn.close() 
+                    print('Dijo que se va')
                     connected=False
+                    break
                 # imprimo en la consola del server
                 print(f"Usuario {addr} dice {msg}")
                 
@@ -67,8 +74,8 @@ def main(args):
         server.listen()
         
         while True:
-            # cuando hay una nueva conexin, creamos un thread con la funcion handle client
             conn, addr=server.accept()
+            semaphore.acquire()
             thread=threading.Thread(target=handle_client,args=(conn,addr))
             thread.start()
     start()

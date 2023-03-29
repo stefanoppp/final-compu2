@@ -18,7 +18,7 @@ class Back_Propagation():
         for i in range(cant_neuronas):
             pesos_neuronales=[]
             for j in range(len(self.entradas[0])):
-                peso_random=random.uniform(-0.01,0.01)
+                peso_random=random.uniform(-0.005,0.005)
                 pesos_neuronales.append(peso_random)
             n=Neurona_oculta(pesos_neuronales)
             neuronas.append(n)
