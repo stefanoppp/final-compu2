@@ -1,5 +1,7 @@
 import sqlite3
 # ARREGLAR HORA
+# importamos time para mostrar el lock de la bd
+import time
 def consulta(data):
     conexion = sqlite3.connect('connections.db')
     cursor = conexion.cursor()
@@ -7,3 +9,4 @@ def consulta(data):
     cursor.execute(f"INSERT INTO connections(id_connections) VALUES({data})")
     conexion.commit()
     conexion.close()
+    time.sleep(20)

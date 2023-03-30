@@ -25,7 +25,7 @@ def main(args):
             print(server_msj)
         send(msg)
 parser=argparse.ArgumentParser()
-parser.add_argument('--x',type=int,default=5050,help='Numero de puerto')
+parser.add_argument('--x',type=int,default=5051,help='Numero de puerto')
 parser.add_argument('--z',type=str,default='utf-8',help='Formato de codificacion')
 args=parser.parse_args()
 main(args)

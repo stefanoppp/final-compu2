@@ -3,6 +3,7 @@ import threading
 import uuid
 import cv2
 import argparse
+import multiprocessing
 def main(args):
     # instanciamos server y red neuronal
     HEADER=64
@@ -41,15 +42,20 @@ def main(args):
     neuronas=back.main()
 
     semaphore=threading.BoundedSemaphore(2)
+    lock=multiprocessing.Lock()
 
     def handle_client(conn,addr):
         # Se crea el hilo y se queda esperando que los otros liberen el semaphore para recibir respuesta por parte del servidor
         connected=True
         print(f"Nuevo cliente conectado. Direccion {addr}")
         id_con=uuid.uuid1().int
+        # creamos proceso que escribe la bd
         from querys import consulta
-        consulta(id_con)
-        
+        lock.acquire()
+        p=multiprocessing.Process(target=consulta,args=(id_con,) )
+        p.start()
+        p.join()
+        lock.release()
         while connected:
             msg_length=conn.recv(HEADER).decode(FORMAT)
             if msg_length:
@@ -75,12 +81,13 @@ def main(args):
         
         while True:
             conn, addr=server.accept()
+            # apenas el server acepta una conexion, intentara ingresar al recurso del semaforo. En caso que no lo consiga, se quedara ahi esperando
             semaphore.acquire()
             thread=threading.Thread(target=handle_client,args=(conn,addr))
             thread.start()
     start()
 parser=argparse.ArgumentParser()
-parser.add_argument('--x',type=int,default=5050,help='Numero de puerto')
+parser.add_argument('--x',type=int,default=5051,help='Numero de puerto')
 parser.add_argument('--y',type=str,default='quit',help='Mensaje de desconexion')
 parser.add_argument('--z',type=str,default='utf-8',help='Formato de codificacion')
 args=parser.parse_args()
