@@ -49,13 +49,14 @@ def main(args):
         connected=True
         print(f"Nuevo cliente conectado. Direccion {addr}")
         id_con=uuid.uuid1().int
-        # creamos proceso que escribe la bd
+        id_con=id_con/1000000
+        # creamos proceso que escribe la bd, el cual accede al lock primero
         from querys import consulta
-        lock.acquire()
+        # lock.acquire()
         p=multiprocessing.Process(target=consulta,args=(id_con,) )
         p.start()
         p.join()
-        lock.release()
+        # lock.release()
         while connected:
             msg_length=conn.recv(HEADER).decode(FORMAT)
             if msg_length:

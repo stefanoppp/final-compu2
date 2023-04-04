@@ -64,13 +64,13 @@ class Back_Propagation():
                 print("Iteracion ",iteracion+1)
                 print(error_red)
         
-    # Paralelizamos con 4 hilos
+    # Paralelizamos con 10 hilos
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             
             [executor.submit(iterar) for _ in range(1)]
 
         return [neuronas,nf]
-    
+    # metodo para procesar la imagen y pasarla para su devolucion
     def foto(self,foto,neuronas,pixeles_fotos):
             image = cv2.imread(foto)
             pixeles=[]
