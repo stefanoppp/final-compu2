@@ -40,22 +40,24 @@ def main(args):
 
     back=Back_Propagation(pixeles_fotos,salidas)
     neuronas=back.main()
-
+    # creamos proceso que escribe la bd, el cual accede al lock primero
+    from querys import consulta
     semaphore=threading.BoundedSemaphore(2)
+
     lock=multiprocessing.Lock()
 
     def handle_client(conn,addr):
         # Se crea el hilo y se queda esperando que los otros liberen el semaphore para recibir respuesta por parte del servidor
         connected=True
         print(f"Nuevo cliente conectado. Direccion {addr}")
+        
         id_con=uuid.uuid1().int
         id_con=id_con/1000000
-        # creamos proceso que escribe la bd, el cual accede al lock primero
-        from querys import consulta
+        lock.acquire()
+        consulta(id_con)
+        lock.release()
         # lock.acquire()
-        p=multiprocessing.Process(target=consulta,args=(id_con,) )
-        p.start()
-        p.join()
+
         # lock.release()
         while connected:
             msg_length=conn.recv(HEADER).decode(FORMAT)
@@ -76,7 +78,7 @@ def main(args):
                 conn.send(f"(SERVER MESSAGE). Usted dijo {msg}. El resultado es: {resultado}".encode(FORMAT))
         conn.close()    
         
-    def start():
+    def start_server():
         print("Servidor escuchando...")
         server.listen()
         
@@ -86,7 +88,10 @@ def main(args):
             semaphore.acquire()
             thread=threading.Thread(target=handle_client,args=(conn,addr))
             thread.start()
-    start()
+
+    p=multiprocessing.Process(target=start_server)
+    p.start()
+    p.join()
 parser=argparse.ArgumentParser()
 parser.add_argument('--x',type=int,default=5051,help='Numero de puerto')
 parser.add_argument('--y',type=str,default='quit',help='Mensaje de desconexion')
