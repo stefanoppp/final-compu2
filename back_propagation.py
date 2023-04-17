@@ -3,6 +3,7 @@ from neuronas_ocultas import Neurona_oculta
 import concurrent.futures
 import random
 import cv2
+import multiprocessing
 
 class Back_Propagation():
     
@@ -18,7 +19,7 @@ class Back_Propagation():
         for i in range(cant_neuronas):
             pesos_neuronales=[]
             for j in range(len(self.entradas[0])):
-                peso_random=random.uniform(-0.005,0.005)
+                peso_random=random.uniform(-0.001,0.001)
                 pesos_neuronales.append(peso_random)
             n=Neurona_oculta(pesos_neuronales)
             neuronas.append(n)
@@ -64,12 +65,14 @@ class Back_Propagation():
                 print("Iteracion ",iteracion+1)
                 print(error_red)
         
-    # Paralelizamos con 10 hilos
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+    # Paralelizamos con la mayor cantidad de hilos posibles
+        cpus = multiprocessing.cpu_count()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=cpus) as executor:
             
             [executor.submit(iterar) for _ in range(1)]
 
         return [neuronas,nf]
+    
     # metodo para procesar la imagen y pasarla para su devolucion
     def foto(self,foto,neuronas,pixeles_fotos):
             image = cv2.imread(foto)
