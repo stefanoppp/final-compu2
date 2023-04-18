@@ -3,20 +3,16 @@ import threading
 import uuid
 import cv2
 import argparse
-import multiprocessing
+
 def main(args):
-    # instanciamos server y red neuronal
     HEADER=64
     PORT=args.x
     DISCONNECT_MESSAGE=args.y
     FORMAT=args.z
+    ADDR = ('::1', PORT)
+
+    server = socket.create_server(ADDR, family=socket.AF_INET6,dualstack_ipv6=True)
     
-    SERVER=socket.gethostbyname(socket.gethostname())
-    ADDR=(SERVER,PORT)
-
-    server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-
-    server.bind(ADDR)
     from back_propagation import Back_Propagation
 
     fotos=['P1-1.jpg',
@@ -44,8 +40,6 @@ def main(args):
     from querys import consulta
     semaphore=threading.BoundedSemaphore(1)
 
-    lock=multiprocessing.Lock()
-
     def handle_client(conn,addr,access):
         # Se crea el hilo y se queda esperando que los otros liberen el semaphore para recibir respuesta por parte del servidor
         connected=True
@@ -53,9 +47,8 @@ def main(args):
         
         id_con=uuid.uuid1().int
         id_con=id_con/1000000
-        lock.acquire()
+        
         consulta(id_con)
-        lock.release()
 
         while connected:
             msg_length=conn.recv(HEADER).decode(FORMAT)
@@ -91,9 +84,8 @@ def main(args):
             thread=threading.Thread(target=handle_client,args=(conn,addr,access))
             thread.start()
 
-    p=multiprocessing.Process(target=start_server)
-    p.start()
-    p.join()
+    start_server()
+    
 parser=argparse.ArgumentParser()
 parser.add_argument('--x',type=int,default=5050,help='Numero de puerto')
 parser.add_argument('--y',type=str,default='quit',help='Mensaje de desconexion')

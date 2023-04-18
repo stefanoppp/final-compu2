@@ -5,10 +5,10 @@ def main(args):
     PORT=args.x
     FORMAT=args.z
     
-    SERVER=socket.gethostbyname(socket.gethostname())
-    ADDR=(SERVER,PORT)
+    # SERVER=socket.gethostbyname(socket.gethostname())
+    ADDR=('::1',PORT)
     CONNECTED=True
-    client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    client=socket.socket(socket.AF_INET6,socket.SOCK_STREAM)
     client.connect(ADDR)
   
     while CONNECTED:
@@ -22,9 +22,11 @@ def main(args):
         server_msj=client.recv(2048).decode(FORMAT)
         if server_msj=='Disconnect capacity':
             print("Usted ha sido desconectado por exceso de demanda")
+            client.close()
             break
         if server_msj=='Disconnect':
             print('Hasta luego!')
+            client.close()
             break
         print(server_msj)
 
