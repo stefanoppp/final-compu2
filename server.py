@@ -3,6 +3,7 @@ import threading
 import uuid
 import cv2
 import argparse
+from multiprocessing import Process,Pipe
 
 def main(args):
     HEADER=64
@@ -24,7 +25,7 @@ def main(args):
     salidas=[1,0,1,0]
 
     pixeles_fotos=[]
-    # Obtenemos los pixeles de las imagenes
+    # -----------------Imagenes
     for foto in fotos:
         image = cv2.imread(foto)
         auxiliar=[]
@@ -33,15 +34,20 @@ def main(args):
                 auxiliar.append(ancho[0])
         auxiliar.append(1)
         pixeles_fotos.append(auxiliar)
-
+        
+    # -----------------
+    
     back=Back_Propagation(pixeles_fotos,salidas)
     neuronas=back.main()
-    # creamos proceso que escribe la bd, el cual accede al lock primero
+
     from querys import consulta
+
     semaphore=threading.BoundedSemaphore(1)
 
+    parent_conn, child_conn = Pipe()
+  
     def handle_client(conn,addr,access):
-        # Se crea el hilo y se queda esperando que los otros liberen el semaphore para recibir respuesta por parte del servidor
+
         connected=True
         print(f"Nuevo cliente conectado. Direccion {addr}")
         
@@ -51,12 +57,14 @@ def main(args):
         consulta(id_con)
 
         while connected:
+
             msg_length=conn.recv(HEADER).decode(FORMAT)
 
             if msg_length:
+                
                 msg_length=int(msg_length)
                 msg=conn.recv(msg_length).decode(FORMAT)
-                # La diferencia es que un if libera el semaforo porque accedio, el otro no
+                
                 if msg==DISCONNECT_MESSAGE:
                     conn.send(f"Disconnect".encode(FORMAT))
                     conn.close()
@@ -68,15 +76,19 @@ def main(args):
                     conn.send(f"Disconnect capacity".encode(FORMAT))
                     conn.close()
                     break
-
+                
                 print(f"Usuario {addr} dice {msg}")
                 
                 resultado=back.foto(msg,neuronas,pixeles_fotos=[])
                
-                conn.send(f"(SERVER MESSAGE). Usted dijo {msg}. El resultado es: {resultado}".encode(FORMAT))
+                child_conn.send(f"(SERVER MESSAGE). Usted dijo {msg}. El resultado es: {resultado}".encode(FORMAT))
+                server_msj = parent_conn.recv()
+                conn.send(server_msj)
+
         
     def start_server():
         print("Servidor escuchando...")
+
         server.listen()
         while True:
             conn, addr=server.accept()
