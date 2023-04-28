@@ -3,16 +3,13 @@ import threading
 import uuid
 import cv2
 import argparse
-from multiprocessing import Process,Pipe
 
 def main(args):
     HEADER=64
     PORT=args.x
     DISCONNECT_MESSAGE=args.y
     FORMAT=args.z
-    ADDR = ('::1', PORT)
-
-    server = socket.create_server(ADDR, family=socket.AF_INET6,dualstack_ipv6=True)
+    
     
     from back_propagation import Back_Propagation
 
@@ -42,15 +39,20 @@ def main(args):
 
     from querys import consulta
 
-    semaphore=threading.BoundedSemaphore(1)
+    semaphore=threading.BoundedSemaphore(2)
 
-    parent_conn, child_conn = Pipe()
-  
+    ADDR2 = ("", PORT)
+    server_ipv6 = socket.create_server(ADDR2, family=socket.AF_INET6, dualstack_ipv6=True)
+
+    SERVER=socket.gethostbyname(socket.gethostname())
+    ADDR=(SERVER,5051)
+    
+    server_ipv4=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+
+    server_ipv4.bind(ADDR)
     def handle_client(conn,addr,access):
 
         connected=True
-        print(f"Nuevo cliente conectado. Direccion {addr}")
-        
         id_con=uuid.uuid1().int
         id_con=id_con/1000000
         
@@ -81,25 +83,40 @@ def main(args):
                 
                 resultado=back.foto(msg,neuronas,pixeles_fotos=[])
                
-                child_conn.send(f"(SERVER MESSAGE). Usted dijo {msg}. El resultado es: {resultado}".encode(FORMAT))
-                server_msj = parent_conn.recv()
-                conn.send(server_msj)
+                conn.send(f"(SERVER MESSAGE). Usted dijo {msg}. El resultado es: {resultado}".encode(FORMAT))
 
         
     def start_server():
         print("Servidor escuchando...")
+        server_ipv4.setblocking(0)
+        server_ipv6.setblocking(0)
+        server_ipv4.listen()
+        server_ipv6.listen()
 
-        server.listen()
         while True:
-            conn, addr=server.accept()
-            access=semaphore.acquire(blocking=False)
-            thread=threading.Thread(target=handle_client,args=(conn,addr,access))
-            thread.start()
+            try:
+                conn_ipv4, addr_ipv4 = server_ipv4.accept()
+                print(f"Nuevo cliente IPv4 conectado. Direccion {addr_ipv4}")
+                access = semaphore.acquire(blocking=False)
+                threading.Thread(target=handle_client, args=(conn_ipv4, addr_ipv4, access)).start()
+            except:
+
+                pass
+
+            try:
+                conn_ipv6, addr_ipv6 = server_ipv6.accept()
+                print(f"Nuevo cliente IPv6 conectado. Direccion {addr_ipv6}")
+                access = semaphore.acquire(blocking=False)
+                threading.Thread(target=handle_client, args=(conn_ipv6, addr_ipv6, access)).start()
+
+            except:
+                pass
+
 
     start_server()
     
 parser=argparse.ArgumentParser()
-parser.add_argument('--x',type=int,default=5050,help='Numero de puerto')
+parser.add_argument('--x',type=int,default=8080,help='Numero de puerto')
 parser.add_argument('--y',type=str,default='quit',help='Mensaje de desconexion')
 parser.add_argument('--z',type=str,default='utf-8',help='Formato de codificacion')
 args=parser.parse_args()
