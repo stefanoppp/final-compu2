@@ -1,16 +1,14 @@
 import socket
 import argparse
-from authenticate import LoginProcess
+from authenticate import main_log_process
 
 def main(args):
-
     def login():
         user=input("Usuario: ")
         passw=input("Clave: ")
-        process_log=LoginProcess(user,passw)
-        process_log
-        log=process_log.run()
+        log=main_log_process(user,passw)
         return log
+    
     access=login()  
 
     if access:
