@@ -3,15 +3,14 @@ import threading
 import uuid
 import cv2
 import argparse
+from back_propagation import Back_Propagation
+from querys import consulta
 
 def main(args):
     HEADER=64
     PORT=args.x
     DISCONNECT_MESSAGE=args.y
     FORMAT=args.z
-    
-    
-    from back_propagation import Back_Propagation
 
     fotos=['P1-1.jpg',
         'P2-1.jpg',
@@ -36,8 +35,6 @@ def main(args):
     
     back=Back_Propagation(pixeles_fotos,salidas)
     neuronas=back.main()
-
-    from querys import consulta
 
     semaphore=threading.BoundedSemaphore(2)
 

@@ -1,12 +1,20 @@
 import socket
 import argparse
+from multiprocessing import Queue
 from authenticate import main_log_process
 
 def main(args):
+    users_queue=Queue()
+    passwords_queue=Queue()
+
     def login():
         user=input("Usuario: ")
         passw=input("Clave: ")
-        log=main_log_process(user,passw)
+
+        users_queue.put(user)
+        passwords_queue.put(passw)
+    
+        log=main_log_process(users_queue.get(),passwords_queue.get())
         return log
     
     access=login()  

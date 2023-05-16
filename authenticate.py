@@ -1,12 +1,12 @@
 import multiprocessing
 import json
-
 class LoginProcess(multiprocessing.Process):
 
     def __init__(self):
         multiprocessing.Process.__init__(self)
 
     def run(self,user,passw):
+        
         with open('users.json') as users:
             data = json.load(users)
             for clave, valor in data.items():
